@@ -1,1 +1,397 @@
-a
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>webtoabout</title>
+<style>
+  :root{
+    --bg:        #0a0e14;
+    --surface:   #11161f;
+    --surface-2: #161c28;
+    --line:      #232a38;
+    --text:      #e7eaf0;
+    --muted:     #7b8497;
+    --accent:    #5eead4;
+    --accent-dim:#2f5a52;
+    --warn:      #ff8a5b;
+    --mono: "JetBrains Mono", "SF Mono", "Berkeley Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "Inter", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* ---------- top bar ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 14px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+  }
+
+  .brand{
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.02em;
+    color:var(--text);
+    white-space:nowrap;
+    display:flex;
+    align-items:baseline;
+    gap:2px;
+    user-select:none;
+  }
+  .brand .dot{ color:var(--accent); }
+
+  .navbtns{
+    display:flex;
+    gap:4px;
+    flex-shrink:0;
+  }
+  .navbtns button{
+    width:30px;
+    height:30px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--muted);
+    border-radius:7px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    transition:border-color .15s, color .15s;
+  }
+  .navbtns button:hover{ border-color:var(--accent-dim); color:var(--text); }
+  .navbtns button:disabled{ opacity:.35; cursor:default; }
+  .navbtns button:disabled:hover{ border-color:var(--line); color:var(--muted); }
+
+  /* ---------- address bar ---------- */
+  form#bar{
+    flex:1;
+    display:flex;
+    align-items:center;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:0 4px 0 12px;
+    height:36px;
+    min-width:0;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  form#bar:focus-within{
+    border-color:var(--accent-dim);
+    box-shadow:0 0 0 3px rgba(94,234,212,0.08);
+  }
+  .route-tag{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    white-space:nowrap;
+    margin-right:8px;
+    user-select:none;
+  }
+  #url{
+    flex:1;
+    min-width:0;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:13px;
+    padding:0;
+  }
+  #url::placeholder{ color:var(--muted); }
+  #go{
+    height:28px;
+    padding:0 14px;
+    margin-left:6px;
+    border:none;
+    border-radius:6px;
+    background:var(--accent);
+    color:#06201c;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:.03em;
+    cursor:pointer;
+    transition:filter .15s;
+  }
+  #go:hover{ filter:brightness(1.08); }
+  #go:active{ filter:brightness(0.92); }
+
+  .status-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--muted);
+    flex-shrink:0;
+    margin-right:8px;
+    transition:background .2s;
+  }
+  .status-dot.live{ background:var(--accent); box-shadow:0 0 6px var(--accent); }
+  .status-dot.err{ background:var(--warn); box-shadow:0 0 6px var(--warn); }
+
+  /* ---------- stage ---------- */
+  main{
+    flex:1;
+    position:relative;
+    background:var(--bg);
+    min-height:0;
+  }
+
+  #frame{
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+    background:#fff;
+  }
+
+  .empty, .loading-veil{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-align:center;
+    padding:20px;
+  }
+
+  .empty{ color:var(--muted); }
+  .empty .glyph{
+    font-family:var(--mono);
+    font-size:34px;
+    color:var(--accent-dim);
+    margin-bottom:6px;
+  }
+  .empty h1{
+    font-family:var(--mono);
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+    margin:0;
+  }
+  .empty p{
+    font-size:12.5px;
+    margin:0;
+    max-width:320px;
+    line-height:1.5;
+  }
+  .empty code{
+    font-family:var(--mono);
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    padding:1px 6px;
+    border-radius:4px;
+    color:var(--accent);
+    font-size:11.5px;
+  }
+
+  .loading-veil{
+    background:var(--bg);
+    pointer-events:none;
+  }
+  .loading-veil.show{ display:flex; }
+  .loading-veil:not(.show){ display:none; }
+  .spinner{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    border:2px solid var(--line);
+    border-top-color:var(--accent);
+    animation:spin 0.8s linear infinite;
+  }
+  .loading-veil span{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  @media (max-width: 560px){
+    .route-tag{ display:none; }
+    .brand{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">webto<span class="dot">•</span>about</span>
+
+  <div class="navbtns">
+    <button id="back" title="Back" disabled>←</button>
+    <button id="fwd" title="Forward" disabled>→</button>
+    <button id="reload" title="Reload" disabled>⟳</button>
+  </div>
+
+  <form id="bar" autocomplete="off">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="route-tag">routes via proxy.webtoabout.com/</span>
+    <input id="url" type="text" placeholder="example.com or https://example.com" spellcheck="false">
+    <button type="submit" id="go">Go</button>
+  </form>
+</header>
+
+<main>
+  <div class="empty" id="empty">
+    <div class="glyph">↳</div>
+    <h1>No destination loaded</h1>
+    <p>Type an address above, or link here directly with <code>?url=https://example.com</code></p>
+  </div>
+
+  <div class="loading-veil" id="veil">
+    <div class="spinner"></div>
+    <span id="veilText">routing request…</span>
+  </div>
+
+  <iframe id="frame" referrerpolicy="no-referrer" hidden></iframe>
+</main>
+
+<script>
+(function(){
+  const PROXY_BASE = "https://proxy.webtoabout.com/";
+
+  const urlInput   = document.getElementById('url');
+  const form       = document.getElementById('bar');
+  const frame      = document.getElementById('frame');
+  const empty      = document.getElementById('empty');
+  const veil       = document.getElementById('veil');
+  const veilText   = document.getElementById('veilText');
+  const statusDot  = document.getElementById('statusDot');
+  const backBtn    = document.getElementById('back');
+  const fwdBtn     = document.getElementById('fwd');
+  const reloadBtn  = document.getElementById('reload');
+
+  // simple in-page history (separate from real browser history,
+  // since the iframe's own history isn't readable cross-origin)
+  let stack = [];
+  let pos   = -1;
+  let loadTimer = null;
+
+  function normalize(raw){
+    let v = raw.trim();
+    if (!v) return null;
+    if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+    return v;
+  }
+
+  function buildProxyURL(target){
+    return PROXY_BASE + target;
+  }
+
+  function setStatus(state){
+    statusDot.classList.remove('live','err');
+    if (state === 'live') statusDot.classList.add('live');
+    if (state === 'err')  statusDot.classList.add('err');
+  }
+
+  function showVeil(text){
+    veilText.textContent = text || "routing request…";
+    veil.classList.add('show');
+  }
+  function hideVeil(){ veil.classList.remove('show'); }
+
+  function updateNavButtons(){
+    backBtn.disabled   = pos <= 0;
+    fwdBtn.disabled    = pos >= stack.length - 1;
+    reloadBtn.disabled = pos < 0;
+  }
+
+  function navigateTo(target, { pushHistory = true } = {}){
+    const normalized = normalize(target);
+    if (!normalized) return;
+
+    urlInput.value = normalized;
+    empty.style.display = 'none';
+    frame.hidden = false;
+    setStatus(null);
+    showVeil("routing request…");
+
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(() => {
+      // iframe.onload can't reliably fire for cross-origin proxied
+      // content in every browser, so this is a soft fallback timeout
+      hideVeil();
+      setStatus('live');
+    }, 6000);
+
+    frame.src = buildProxyURL(normalized);
+
+    if (pushHistory){
+      stack = stack.slice(0, pos + 1);
+      stack.push(normalized);
+      pos = stack.length - 1;
+    }
+    updateNavButtons();
+
+    // reflect in the address bar of THIS page for shareable links,
+    // without adding a browser history entry per navigation
+    const qs = new URLSearchParams(window.location.search);
+    qs.set('url', normalized);
+    history.replaceState(null, '', '?' + qs.toString());
+  }
+
+  frame.addEventListener('load', () => {
+    clearTimeout(loadTimer);
+    hideVeil();
+    setStatus('live');
+  });
+
+  frame.addEventListener('error', () => {
+    clearTimeout(loadTimer);
+    hideVeil();
+    setStatus('err');
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    navigateTo(urlInput.value);
+  });
+
+  backBtn.addEventListener('click', () => {
+    if (pos > 0){
+      pos -= 1;
+      navigateTo(stack[pos], { pushHistory:false });
+    }
+  });
+
+  fwdBtn.addEventListener('click', () => {
+    if (pos < stack.length - 1){
+      pos += 1;
+      navigateTo(stack[pos], { pushHistory:false });
+    }
+  });
+
+  reloadBtn.addEventListener('click', () => {
+    if (pos >= 0) navigateTo(stack[pos], { pushHistory:false });
+  });
+
+  // boot: read ?url= if present
+  const initial = new URLSearchParams(window.location.search).get('url');
+  if (initial){
+    navigateTo(initial);
+  } else {
+    updateNavButtons();
+  }
+})();
+</script>
+
+</body>
+</html>
