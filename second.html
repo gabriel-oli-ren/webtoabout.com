@@ -29,38 +29,110 @@
     flex-direction:column;
     overflow:hidden;
   }
+  button{ font-family:inherit; }
+  svg.icon{ width:16px; height:16px; display:block; }
 
-  /* ---------- top bar ---------- */
-  header{
+  /* ---------- tab strip ---------- */
+  .tabstrip{
+    display:flex;
+    align-items:flex-end;
+    gap:2px;
+    padding:8px 8px 0 10px;
+    background:var(--bg);
+    flex-shrink:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .tabstrip::-webkit-scrollbar{ display:none; }
+
+  .tab{
     display:flex;
     align-items:center;
-    gap:10px;
-    padding:10px 14px;
+    gap:7px;
+    max-width:190px;
+    min-width:96px;
+    flex:1 1 150px;
+    height:32px;
+    padding:0 8px 0 11px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+    position:relative;
+    top:1px;
+  }
+  .tab.active{
+    background:var(--surface);
+    color:var(--text);
+    border-color:var(--line);
+  }
+  .tab.active::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:-1px;
+    height:1px;
+    background:var(--surface);
+  }
+  .tab .dot{
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--muted);
+    flex-shrink:0;
+  }
+  .tab.active .dot{ background:var(--accent); }
+  .tab .label{
+    flex:1;
+    min-width:0;
+    font-size:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .tab .closebtn{
+    width:18px; height:18px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    border-radius:4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .tab .closebtn:hover{ background:var(--line); color:var(--text); }
+  .tab .closebtn svg{ width:11px; height:11px; }
+
+  .newtab{
+    width:28px; height:28px;
+    margin:0 0 3px 4px;
+    flex-shrink:0;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--muted);
+    border-radius:7px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .newtab:hover{ background:var(--surface-2); color:var(--text); border-color:var(--line); }
+
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
     background:var(--surface);
     border-bottom:1px solid var(--line);
     flex-shrink:0;
   }
 
-  .brand{
-    font-family:var(--mono);
-    font-weight:600;
-    font-size:13px;
-    letter-spacing:0.02em;
-    color:var(--text);
-    white-space:nowrap;
-    display:flex;
-    align-items:baseline;
-    gap:2px;
-    user-select:none;
-  }
-  .brand .dot{ color:var(--accent); }
-
-  .navbtns{
-    display:flex;
-    gap:4px;
-    flex-shrink:0;
-  }
-  .navbtns button{
+  .iconbtn{
     width:30px;
     height:30px;
     border:1px solid var(--line);
@@ -71,14 +143,16 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:14px;
-    transition:border-color .15s, color .15s;
+    flex-shrink:0;
+    transition:border-color .15s, color .15s, background .15s;
   }
-  .navbtns button:hover{ border-color:var(--accent-dim); color:var(--text); }
-  .navbtns button:disabled{ opacity:.35; cursor:default; }
-  .navbtns button:disabled:hover{ border-color:var(--line); color:var(--muted); }
+  .iconbtn:hover{ border-color:var(--accent-dim); color:var(--text); }
+  .iconbtn:disabled{ opacity:.35; cursor:default; }
+  .iconbtn:disabled:hover{ border-color:var(--line); color:var(--muted); }
+  .iconbtn.active{ color:var(--accent); border-color:var(--accent-dim); background:rgba(94,234,212,0.08); }
 
-  /* ---------- address bar ---------- */
+  .navgroup, .rightgroup{ display:flex; gap:4px; flex-shrink:0; }
+
   form#bar{
     flex:1;
     display:flex;
@@ -87,21 +161,13 @@
     border:1px solid var(--line);
     border-radius:8px;
     padding:0 4px 0 12px;
-    height:36px;
+    height:34px;
     min-width:0;
     transition:border-color .15s, box-shadow .15s;
   }
   form#bar:focus-within{
     border-color:var(--accent-dim);
     box-shadow:0 0 0 3px rgba(94,234,212,0.08);
-  }
-  .route-tag{
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--muted);
-    white-space:nowrap;
-    margin-right:8px;
-    user-select:none;
   }
   #url{
     flex:1;
@@ -116,7 +182,7 @@
   }
   #url::placeholder{ color:var(--muted); }
   #go{
-    height:28px;
+    height:26px;
     padding:0 14px;
     margin-left:6px;
     border:none;
@@ -133,18 +199,6 @@
   #go:hover{ filter:brightness(1.08); }
   #go:active{ filter:brightness(0.92); }
 
-  .status-dot{
-    width:7px;
-    height:7px;
-    border-radius:50%;
-    background:var(--muted);
-    flex-shrink:0;
-    margin-right:8px;
-    transition:background .2s;
-  }
-  .status-dot.live{ background:var(--accent); box-shadow:0 0 6px var(--accent); }
-  .status-dot.err{ background:var(--warn); box-shadow:0 0 6px var(--warn); }
-
   /* ---------- stage ---------- */
   main{
     flex:1;
@@ -153,7 +207,10 @@
     min-height:0;
   }
 
-  #frame{
+  .pane{ position:absolute; inset:0; display:none; }
+  .pane.active{ display:block; }
+
+  .pane iframe{
     width:100%;
     height:100%;
     border:none;
@@ -171,6 +228,7 @@
     gap:10px;
     text-align:center;
     padding:20px;
+    background:var(--bg);
   }
 
   .empty{ color:var(--muted); }
@@ -190,25 +248,12 @@
   .empty p{
     font-size:12.5px;
     margin:0;
-    max-width:320px;
+    max-width:300px;
     line-height:1.5;
   }
-  .empty code{
-    font-family:var(--mono);
-    background:var(--surface-2);
-    border:1px solid var(--line);
-    padding:1px 6px;
-    border-radius:4px;
-    color:var(--accent);
-    font-size:11.5px;
-  }
 
-  .loading-veil{
-    background:var(--bg);
-    pointer-events:none;
-  }
+  .loading-veil{ pointer-events:none; display:none; }
   .loading-veil.show{ display:flex; }
-  .loading-veil:not(.show){ display:none; }
   .spinner{
     width:22px;
     height:22px;
@@ -224,172 +269,593 @@
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
+  /* ---------- panel (history / favourites) ---------- */
+  .panel-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.35);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .15s;
+    z-index:20;
+  }
+  .panel-overlay.show{ opacity:1; pointer-events:auto; }
+
+  .panel{
+    position:fixed;
+    top:0; right:0;
+    height:100%;
+    width:340px;
+    max-width:88vw;
+    background:var(--surface);
+    border-left:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    transform:translateX(100%);
+    transition:transform .18s ease;
+    z-index:21;
+  }
+  .panel.show{ transform:translateX(0); }
+
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px;
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .seg{
+    display:flex;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:2px;
+    gap:2px;
+  }
+  .seg-btn{
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .seg-btn.active{ background:var(--surface); color:var(--text); }
+
+  .panel-body{
+    flex:1;
+    overflow-y:auto;
+    padding:6px;
+  }
+  .panel-empty{
+    color:var(--muted);
+    font-size:12.5px;
+    text-align:center;
+    padding:40px 16px;
+    line-height:1.5;
+  }
+
+  .row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .row:hover{ background:var(--surface-2); }
+  .row .favicon{
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--accent-dim);
+    flex-shrink:0;
+  }
+  .row .meta{ flex:1; min-width:0; }
+  .row .title{
+    font-size:13px;
+    color:var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .row .sub{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .row .when{
+    font-size:10.5px;
+    color:var(--muted);
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .row .rowbtn{
+    width:22px; height:22px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    border-radius:5px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .row .rowbtn:hover{ background:var(--line); color:var(--warn); }
+  .row .rowbtn svg{ width:13px; height:13px; }
+
+  .panel-foot{
+    flex-shrink:0;
+    padding:10px;
+    border-top:1px solid var(--line);
+  }
+  .panel-foot button{
+    width:100%;
+    height:32px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--muted);
+    border-radius:7px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .panel-foot button:hover{ color:var(--warn); border-color:var(--warn); }
+
   @media (max-width: 560px){
-    .route-tag{ display:none; }
-    .brand{ display:none; }
+    .tab{ min-width:64px; flex:1 1 64px; }
+    .tab .label{ display:none; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <span class="brand">webto<span class="dot">•</span>about</span>
+<div class="tabstrip" id="tabstrip">
+  <button class="newtab" id="newTabBtn" title="New tab">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
 
-  <div class="navbtns">
-    <button id="back" title="Back" disabled>←</button>
-    <button id="fwd" title="Forward" disabled>→</button>
-    <button id="reload" title="Reload" disabled>⟳</button>
+<div class="toolbar">
+  <div class="navgroup">
+    <button id="back" class="iconbtn" title="Back" disabled>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button id="fwd" class="iconbtn" title="Forward" disabled>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button id="reload" class="iconbtn" title="Reload" disabled>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    </button>
   </div>
 
   <form id="bar" autocomplete="off">
-    <span class="status-dot" id="statusDot"></span>
-    <span class="route-tag">routes via proxy.webtoabout.com/</span>
-    <input id="url" type="text" placeholder="example.com or https://example.com" spellcheck="false">
+    <input id="url" type="text" placeholder="Enter an address" spellcheck="false">
     <button type="submit" id="go">Go</button>
   </form>
-</header>
 
-<main>
-  <div class="empty" id="empty">
-    <div class="glyph">↳</div>
-    <h1>No destination loaded</h1>
-    <p>Type an address above, or link here directly with <code>?url=https://example.com</code></p>
+  <div class="rightgroup">
+    <button id="starBtn" class="iconbtn" title="Add to favourites" disabled>
+      <svg class="icon" id="starIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </button>
+    <button id="historyBtn" class="iconbtn" title="History">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+    </button>
+    <button id="favBtn" class="iconbtn" title="Favourites">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    </button>
   </div>
+</div>
 
-  <div class="loading-veil" id="veil">
-    <div class="spinner"></div>
-    <span id="veilText">routing request…</span>
+<main id="stage"></main>
+
+<div class="panel-overlay" id="panelOverlay"></div>
+<aside class="panel" id="panel">
+  <div class="panel-head">
+    <div class="seg">
+      <button class="seg-btn" data-list="history">History</button>
+      <button class="seg-btn" data-list="favorites">Favourites</button>
+    </div>
+    <button class="iconbtn" id="panelClose" title="Close">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
-
-  <iframe id="frame" referrerpolicy="no-referrer" hidden></iframe>
-</main>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-foot" id="panelFoot">
+    <button id="clearListBtn">Clear all</button>
+  </div>
+</aside>
 
 <script>
 (function(){
   const PROXY_BASE = "https://proxy.webtoabout.com/";
+  const HISTORY_KEY = "wta_history";
+  const FAVORITES_KEY = "wta_favorites";
+  const HISTORY_LIMIT = 200;
 
+  const tabstrip   = document.getElementById('tabstrip');
+  const newTabBtn  = document.getElementById('newTabBtn');
+  const stage      = document.getElementById('stage');
   const urlInput   = document.getElementById('url');
   const form       = document.getElementById('bar');
-  const frame      = document.getElementById('frame');
-  const empty      = document.getElementById('empty');
-  const veil       = document.getElementById('veil');
-  const veilText   = document.getElementById('veilText');
-  const statusDot  = document.getElementById('statusDot');
   const backBtn    = document.getElementById('back');
   const fwdBtn     = document.getElementById('fwd');
   const reloadBtn  = document.getElementById('reload');
+  const starBtn    = document.getElementById('starBtn');
+  const historyBtn = document.getElementById('historyBtn');
+  const favBtn     = document.getElementById('favBtn');
+  const panel        = document.getElementById('panel');
+  const panelOverlay = document.getElementById('panelOverlay');
+  const panelBody     = document.getElementById('panelBody');
+  const panelClose    = document.getElementById('panelClose');
+  const clearListBtn  = document.getElementById('clearListBtn');
+  const segBtns        = document.querySelectorAll('.seg-btn');
 
-  // simple in-page history (separate from real browser history,
-  // since the iframe's own history isn't readable cross-origin)
-  let stack = [];
-  let pos   = -1;
-  let loadTimer = null;
+  let tabs = [];
+  let activeId = null;
+  let panelList = 'history';
+
+  function uid(){ return Math.random().toString(36).slice(2, 10); }
+
+  function loadJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+
+  let historyList = loadJSON(HISTORY_KEY, []);
+  let favorites   = loadJSON(FAVORITES_KEY, []);
+
+  function hostnameOf(u){
+    try{ return new URL(u).hostname.replace(/^www\./,''); }
+    catch(e){ return u; }
+  }
 
   function normalize(raw){
-    let v = raw.trim();
+    let v = (raw || '').trim();
     if (!v) return null;
     if (!/^https?:\/\//i.test(v)) v = "https://" + v;
     return v;
   }
 
-  function buildProxyURL(target){
-    return PROXY_BASE + target;
+  function timeAgo(ts){
+    const diff = Math.max(0, Date.now() - ts);
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    const d = Math.floor(h / 24);
+    return d + 'd ago';
   }
 
-  function setStatus(state){
-    statusDot.classList.remove('live','err');
-    if (state === 'live') statusDot.classList.add('live');
-    if (state === 'err')  statusDot.classList.add('err');
+  /* ---------------- tabs ---------------- */
+
+  function createTab(initialUrl){
+    const id = uid();
+    const tab = {
+      id,
+      navStack: [],
+      navPos: -1,
+      currentUrl: null,
+      title: 'New tab',
+      pillEl: null, paneEl: null, iframeEl: null, emptyEl: null, veilEl: null,
+      loadTimer: null
+    };
+
+    const pane = document.createElement('div');
+    pane.className = 'pane';
+
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.innerHTML =
+      '<div class="glyph">&#8627;</div>' +
+      '<h1>No destination loaded</h1>' +
+      '<p>Type an address above to get started.</p>';
+
+    const veil = document.createElement('div');
+    veil.className = 'loading-veil';
+    veil.innerHTML = '<div class="spinner"></div><span>routing request&hellip;</span>';
+
+    const iframe = document.createElement('iframe');
+    iframe.referrerPolicy = 'no-referrer';
+    iframe.hidden = true;
+
+    pane.appendChild(empty);
+    pane.appendChild(veil);
+    pane.appendChild(iframe);
+    stage.appendChild(pane);
+
+    tab.paneEl = pane;
+    tab.emptyEl = empty;
+    tab.veilEl = veil;
+    tab.iframeEl = iframe;
+
+    iframe.addEventListener('load', () => {
+      clearTimeout(tab.loadTimer);
+      veil.classList.remove('show');
+    });
+    iframe.addEventListener('error', () => {
+      clearTimeout(tab.loadTimer);
+      veil.classList.remove('show');
+    });
+
+    const pill = document.createElement('div');
+    pill.className = 'tab';
+    pill.innerHTML =
+      '<span class="dot"></span>' +
+      '<span class="label">New tab</span>' +
+      '<button class="closebtn" title="Close tab">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>';
+    pill.addEventListener('click', (e) => {
+      if (e.target.closest('.closebtn')) return;
+      setActiveTab(id);
+    });
+    pill.querySelector('.closebtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeTab(id);
+    });
+    tab.pillEl = pill;
+    tabstrip.insertBefore(pill, newTabBtn);
+
+    tabs.push(tab);
+    setActiveTab(id);
+
+    if (initialUrl) navigate(tab, initialUrl);
+
+    return tab;
   }
 
-  function showVeil(text){
-    veilText.textContent = text || "routing request…";
-    veil.classList.add('show');
-  }
-  function hideVeil(){ veil.classList.remove('show'); }
+  function closeTab(id){
+    const idx = tabs.findIndex(t => t.id === id);
+    if (idx === -1) return;
+    const tab = tabs[idx];
+    clearTimeout(tab.loadTimer);
+    tab.pillEl.remove();
+    tab.paneEl.remove();
+    tabs.splice(idx, 1);
 
-  function updateNavButtons(){
-    backBtn.disabled   = pos <= 0;
-    fwdBtn.disabled    = pos >= stack.length - 1;
-    reloadBtn.disabled = pos < 0;
+    if (tabs.length === 0){
+      createTab();
+      return;
+    }
+    if (activeId === id){
+      const next = tabs[idx] || tabs[idx - 1];
+      setActiveTab(next.id);
+    }
   }
 
-  function navigateTo(target, { pushHistory = true } = {}){
+  function setActiveTab(id){
+    activeId = id;
+    tabs.forEach(t => {
+      const isActive = t.id === id;
+      t.pillEl.classList.toggle('active', isActive);
+      t.paneEl.classList.toggle('active', isActive);
+    });
+    const tab = getActiveTab();
+    urlInput.value = tab.currentUrl || '';
+    document.title = tab.currentUrl ? (tab.title + ' \u2013 webtoabout') : 'webtoabout';
+    updateToolbar();
+  }
+
+  function getActiveTab(){
+    return tabs.find(t => t.id === activeId);
+  }
+
+  /* ---------------- navigation ---------------- */
+
+  function navigate(tab, target, opts){
+    opts = opts || {};
+    const pushStack = opts.pushStack !== false;
     const normalized = normalize(target);
     if (!normalized) return;
 
-    urlInput.value = normalized;
-    empty.style.display = 'none';
-    frame.hidden = false;
-    setStatus(null);
-    showVeil("routing request…");
+    tab.currentUrl = normalized;
+    tab.title = hostnameOf(normalized);
+    tab.pillEl.querySelector('.label').textContent = tab.title;
 
-    clearTimeout(loadTimer);
-    loadTimer = setTimeout(() => {
-      // iframe.onload can't reliably fire for cross-origin proxied
-      // content in every browser, so this is a soft fallback timeout
-      hideVeil();
-      setStatus('live');
-    }, 6000);
+    tab.emptyEl.style.display = 'none';
+    tab.iframeEl.hidden = false;
+    tab.veilEl.classList.add('show');
 
-    frame.src = buildProxyURL(normalized);
+    clearTimeout(tab.loadTimer);
+    tab.loadTimer = setTimeout(() => tab.veilEl.classList.remove('show'), 6000);
 
-    if (pushHistory){
-      stack = stack.slice(0, pos + 1);
-      stack.push(normalized);
-      pos = stack.length - 1;
+    tab.iframeEl.src = PROXY_BASE + normalized;
+
+    if (pushStack){
+      tab.navStack = tab.navStack.slice(0, tab.navPos + 1);
+      tab.navStack.push(normalized);
+      tab.navPos = tab.navStack.length - 1;
     }
-    updateNavButtons();
 
-    // reflect in the address bar of THIS page for shareable links,
-    // without adding a browser history entry per navigation
-    const qs = new URLSearchParams(window.location.search);
-    qs.set('url', normalized);
-    history.replaceState(null, '', '?' + qs.toString());
+    addHistoryEntry(normalized, tab.title);
+
+    if (tab.id === activeId){
+      urlInput.value = normalized;
+      document.title = tab.title + ' \u2013 webtoabout';
+      updateToolbar();
+    }
   }
 
-  frame.addEventListener('load', () => {
-    clearTimeout(loadTimer);
-    hideVeil();
-    setStatus('live');
-  });
+  function updateToolbar(){
+    const tab = getActiveTab();
+    if (!tab){ return; }
+    backBtn.disabled    = tab.navPos <= 0;
+    fwdBtn.disabled     = tab.navPos >= tab.navStack.length - 1;
+    reloadBtn.disabled  = tab.navPos < 0;
+    starBtn.disabled    = !tab.currentUrl;
+    setStarState(tab.currentUrl && favorites.some(f => f.url === tab.currentUrl));
+  }
 
-  frame.addEventListener('error', () => {
-    clearTimeout(loadTimer);
-    hideVeil();
-    setStatus('err');
-  });
+  function setStarState(isFav){
+    starBtn.classList.toggle('active', !!isFav);
+    document.getElementById('starIcon').setAttribute('fill', isFav ? 'currentColor' : 'none');
+  }
+
+  /* ---------------- history ---------------- */
+
+  function addHistoryEntry(url, title){
+    if (historyList.length && historyList[0].url === url){
+      historyList[0].ts = Date.now();
+    } else {
+      historyList.unshift({ url, title, ts: Date.now() });
+      if (historyList.length > HISTORY_LIMIT) historyList.length = HISTORY_LIMIT;
+    }
+    saveJSON(HISTORY_KEY, historyList);
+    if (panel.classList.contains('show') && panelList === 'history') renderPanel();
+  }
+
+  function removeHistoryEntry(index){
+    historyList.splice(index, 1);
+    saveJSON(HISTORY_KEY, historyList);
+    renderPanel();
+  }
+
+  /* ---------------- favorites ---------------- */
+
+  function toggleFavorite(){
+    const tab = getActiveTab();
+    if (!tab || !tab.currentUrl) return;
+    const idx = favorites.findIndex(f => f.url === tab.currentUrl);
+    if (idx > -1){
+      favorites.splice(idx, 1);
+    } else {
+      favorites.unshift({ url: tab.currentUrl, title: tab.title });
+    }
+    saveJSON(FAVORITES_KEY, favorites);
+    updateToolbar();
+    if (panel.classList.contains('show') && panelList === 'favorites') renderPanel();
+  }
+
+  function removeFavorite(index){
+    favorites.splice(index, 1);
+    saveJSON(FAVORITES_KEY, favorites);
+    updateToolbar();
+    renderPanel();
+  }
+
+  /* ---------------- panel ---------------- */
+
+  function openPanel(list){
+    panelList = list;
+    segBtns.forEach(b => b.classList.toggle('active', b.dataset.list === list));
+    panel.classList.add('show');
+    panelOverlay.classList.add('show');
+    renderPanel();
+  }
+
+  function closePanel(){
+    panel.classList.remove('show');
+    panelOverlay.classList.remove('show');
+  }
+
+  function rowIconSvg(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  }
+
+  function renderPanel(){
+    const items = panelList === 'history' ? historyList : favorites;
+    document.getElementById('panelFoot').style.display = (panelList === 'history' && items.length) ? 'block' : 'none';
+
+    if (!items.length){
+      panelBody.innerHTML = '<div class="panel-empty">' +
+        (panelList === 'history' ? 'No browsing history yet.' : 'No favourites yet. Use the star button to save a page.') +
+        '</div>';
+      return;
+    }
+
+    panelBody.innerHTML = '';
+    items.forEach((item, index) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML =
+        '<span class="favicon"></span>' +
+        '<span class="meta">' +
+          '<div class="title">' + escapeHtml(item.title || hostnameOf(item.url)) + '</div>' +
+          '<div class="sub">' + escapeHtml(item.url) + '</div>' +
+        '</span>' +
+        (panelList === 'history' ? '<span class="when">' + timeAgo(item.ts) + '</span>' : '') +
+        '<button class="rowbtn" title="Remove">' + rowIconSvg() + '</button>';
+
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.rowbtn')) return;
+        const tab = getActiveTab();
+        navigate(tab, item.url);
+        closePanel();
+      });
+      row.querySelector('.rowbtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (panelList === 'history') removeHistoryEntry(index);
+        else removeFavorite(index);
+      });
+
+      panelBody.appendChild(row);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* ---------------- events ---------------- */
+
+  newTabBtn.addEventListener('click', () => createTab());
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    navigateTo(urlInput.value);
+    navigate(getActiveTab(), urlInput.value);
   });
 
   backBtn.addEventListener('click', () => {
-    if (pos > 0){
-      pos -= 1;
-      navigateTo(stack[pos], { pushHistory:false });
+    const tab = getActiveTab();
+    if (tab.navPos > 0){
+      tab.navPos -= 1;
+      navigate(tab, tab.navStack[tab.navPos], { pushStack:false });
     }
   });
-
   fwdBtn.addEventListener('click', () => {
-    if (pos < stack.length - 1){
-      pos += 1;
-      navigateTo(stack[pos], { pushHistory:false });
+    const tab = getActiveTab();
+    if (tab.navPos < tab.navStack.length - 1){
+      tab.navPos += 1;
+      navigate(tab, tab.navStack[tab.navPos], { pushStack:false });
     }
   });
-
   reloadBtn.addEventListener('click', () => {
-    if (pos >= 0) navigateTo(stack[pos], { pushHistory:false });
+    const tab = getActiveTab();
+    if (tab.navPos >= 0) navigate(tab, tab.navStack[tab.navPos], { pushStack:false });
   });
 
-  // boot: read ?url= if present
+  starBtn.addEventListener('click', toggleFavorite);
+  historyBtn.addEventListener('click', () => openPanel('history'));
+  favBtn.addEventListener('click', () => openPanel('favorites'));
+  panelClose.addEventListener('click', closePanel);
+  panelOverlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+  segBtns.forEach(btn => btn.addEventListener('click', () => openPanel(btn.dataset.list)));
+
+  clearListBtn.addEventListener('click', () => {
+    if (panelList === 'history'){
+      historyList = [];
+      saveJSON(HISTORY_KEY, historyList);
+    }
+    renderPanel();
+  });
+
+  /* ---------------- boot ---------------- */
+
   const initial = new URLSearchParams(window.location.search).get('url');
-  if (initial){
-    navigateTo(initial);
-  } else {
-    updateNavButtons();
-  }
+  createTab(initial || null);
 })();
 </script>
 
